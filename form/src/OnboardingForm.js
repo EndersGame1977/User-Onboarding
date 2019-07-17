@@ -1,5 +1,6 @@
 import React from "react";
 import { withFormik, Form, Field, ErrorMessage } from "formik";
+import axios from "axios";
 import * as Yup from "yup";
 
 function OnboardingForm({ values }) {
@@ -48,9 +49,23 @@ const FormikOnboardingForm = withFormik({
       .required("Password is required")
   }),
 
-  handleSubmit(values) {
-    console.log(values);
-    //THIS IS WHERE YOU DO YOUR FORM SUBMISSION CODE... HTTP REQUESTS, ETC.
+  handleSubmit(values, { resetForm, setErrors, setSubmitting }) {
+    if (values.email === "alreadytaken@atb.dev") {
+      setErrors({ email: "That email is already taken" });
+    } else {
+      axios
+        .post("https://reqres.in/api/users", values)
+        .then(res => {
+          console.log(res); // Data was created successfully and logs to console
+          resetForm();
+          setSubmitting(false);
+          window.alert("Form submitted " + res.data.name);
+        })
+        .catch(err => {
+          console.log(err); // There was an error creating the data and logs to console
+          setSubmitting(false);
+        });
+    }
   }
 })(OnboardingForm);
 
